@@ -7,9 +7,9 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
-import prettier from "prettier/standalone";
+// import prettier from "prettier/standalone";
 // @ts-ignore-next-line
-import * as movePrettierPlugin from "@mysten/prettier-plugin-move";
+// import * as movePrettierPlugin from "@mysten/prettier-plugin-move";
 
 import TerminalOutput from "./TerminalOutput";
 import { Loading } from "./ui/loading";
@@ -128,10 +128,10 @@ export function MoveEditor({
 
   const formatCode = useCallback(() => {
     console.log("Formatting...");
-    prettier.format(code, {
-      parser: "move",
-      plugins: [movePrettierPlugin],
-    });
+    // prettier.format(code, {
+    //   parser: "move",
+    //   plugins: [movePrettierPlugin],
+    // });
   }, [code]);
 
   const codeActions = useMemo(() => {
