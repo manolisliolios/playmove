@@ -1,35 +1,11 @@
-# Sui dApp Starter Template
+# A Move Playground React Component
 
-This dApp was created using `@mysten/create-dapp` that sets up a basic React
-Client dApp using the following tools:
+A React Component for Move Playground using `monaco` editor, `shiki`
 
-- [React](https://react.dev/) as the UI framework
-- [TypeScript](https://www.typescriptlang.org/) for type checking
-- [Vite](https://vitejs.dev/) for build tooling
-- [Radix UI](https://www.radix-ui.com/) for pre-built UI components
-- [ESLint](https://eslint.org/)
-- [`@mysten/dapp-kit`](https://sdk.mystenlabs.com/dapp-kit) for connecting to
-  wallets and loading data
-- [pnpm](https://pnpm.io/) for package management
+## Installation
 
-## Starting your dApp
+To install the package in your package, you should do:
 
-To install dependencies you can run
-
-```bash
-pnpm install
-```
-
-To start your dApp in development mode run
-
-```bash
-pnpm dev
-```
-
-## Building
-
-To build your app for deployment you can run
-
-```bash
-pnpm build
+```install
+pnpm add shiki @shikijs/monaco @mysten/move-playground-react
 ```

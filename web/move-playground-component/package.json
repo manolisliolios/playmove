@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@mysten/move-playground-react",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,13 +9,16 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "main": "./dist/move-playground.umd.js",
+  "main": "./dist/move-playground.cjs.js",
   "module": "./dist/move-playground.es.js",
+  "types": "./dist/move-playground.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/move-playground.d.ts",
       "import": "./dist/move-playground.es.js",
-      "require": "./dist/move-playground.umd.js"
-    }
+      "require": "./dist/move-playground.cjs.js"
+    },
+    "./style.css": "./dist/move-playground-component.css"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -48,12 +51,14 @@
     "eslint-plugin-react-refresh": "^0.4.7",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5.8.2",
-    "vite": "^6.2.4"
+    "vite": "^6.2.4",
+    "vite-plugin-dts": "^4.5.4"
   },
   "peerDependencies": {
+    "@shikijs/monaco": "^3.7.0",
+    "monaco-editor": "^0.52.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "monaco-editor": "^0.52.2",
     "shiki": "^3.7.0"
   }
 }

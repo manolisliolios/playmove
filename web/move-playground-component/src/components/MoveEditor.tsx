@@ -24,6 +24,18 @@ import { LightMode } from "@/icons/LightMode";
 import { CloseIcon } from "@/icons/CloseIcon";
 import { TerminalIcon } from "@/icons/TerminalIcon";
 
+export interface MoveEditorProps {
+  height?: string;
+  width?: string;
+  readOnly?: boolean;
+  darkMode?: boolean;
+  setDarkMode?: (darkMode: boolean) => void;
+  code?: string;
+  setCode?: (code: string | undefined) => void;
+  enableLocalStorageSaving?: boolean;
+  localStorageKey?: string;
+}
+
 export function MoveEditor({
   height = "50vh",
   width = "100%",
@@ -38,17 +50,7 @@ export function MoveEditor({
   setCode,
   enableLocalStorageSaving = true,
   localStorageKey = "moveground.code",
-}: {
-  height?: string;
-  width?: string;
-  readOnly?: boolean;
-  darkMode?: boolean;
-  setDarkMode?: (darkMode: boolean) => void;
-  code?: string;
-  setCode?: (code: string | undefined) => void;
-  enableLocalStorageSaving?: boolean;
-  localStorageKey?: string;
-}) {
+}: MoveEditorProps) {
   const containerRef = useRef(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [useVerticalVersion, setUseVerticalVersion] = useState(false);
@@ -123,7 +125,7 @@ export function MoveEditor({
 
       setLoading(false);
     },
-    [code],
+    [code]
   );
 
   const formatCode = useCallback(() => {
@@ -172,11 +174,15 @@ export function MoveEditor({
   return (
     <div
       ref={containerRef}
-      className="border move-editor-container monaco-editor relative"
+      className="move-editor-container monaco-editor relative"
       style={{
         width,
         backgroundColor: `var(--vscode-editor-background)`,
-        borderColor: `${darkMode ? COLORS.dark.border : COLORS.light.border}!important`,
+        borderWidth: "1px",
+        borderStyle: "solid",
+        borderColor: `${
+          darkMode ? COLORS.dark.border : COLORS.light.border
+        }!important`,
         color: `var(--vscode-editor-foreground)`,
       }}
     >
@@ -195,7 +201,7 @@ export function MoveEditor({
               <Tooltip key={action.tooltip}>
                 <TooltipTrigger
                   className={cn(
-                    "flex cursor-pointer disabled:opacity-50 px-2 text-xs",
+                    "flex cursor-pointer disabled:opacity-50 px-2 text-xs"
                   )}
                   style={{
                     color: `var(--vscode-editor-foreground)`,
@@ -238,8 +244,6 @@ export function MoveEditor({
             style={{
               height,
               minHeight: useVerticalVersion ? "250px" : undefined,
-              borderTop: useVerticalVersion ? "1px solid" : undefined,
-              borderColor: darkMode ? COLORS.dark.border : COLORS.light.border,
             }}
           >
             <div className="absolute top-[10px] right-[5px] z-50 flex gap-5 flex-col-reverse output-actions">
@@ -247,7 +251,7 @@ export function MoveEditor({
                 <Tooltip key={action.tooltip}>
                   <TooltipTrigger
                     className={cn(
-                      "flex cursor-pointer disabled:opacity-50 px-2 text-xs",
+                      "flex cursor-pointer disabled:opacity-50 px-2 text-xs"
                     )}
                     style={{
                       color: `var(--vscode-editor-foreground)`,
