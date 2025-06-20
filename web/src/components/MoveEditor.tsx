@@ -12,7 +12,7 @@ import TerminalOutput from "./TerminalOutput";
 import { Loading } from "./ui/loading";
 import { COLORS } from "@/lib/colors";
 import { PlayIcon } from "@/icons/PlayIcon";
-import { cn } from "@/lib/utils";
+import { API_URL, cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { FormatIcon } from "@/icons/FormatIcon";
 import { convertShiki } from "@/lib/shiki-highlighter";
@@ -92,7 +92,7 @@ export function MoveEditor({
     setLoading(true);
     setOutput("");
     try {
-      const res = await fetch("http://localhost:8181/build", {
+      const res = await fetch(`${API_URL}/build`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -114,12 +114,11 @@ export function MoveEditor({
   return (
     <div
       ref={containerRef}
-      className="border move-editor-container relative"
+      className="border move-editor-container monaco-editor relative"
       style={{
         width,
-        backgroundColor: darkMode
-          ? COLORS.dark.background
-          : COLORS.light.background,
+        backgroundColor: `var(--vscode-editor-background)`,
+        color: `var(--vscode-editor-foreground)`,
       }}
     >
       <ResizablePanelGroup
@@ -132,12 +131,13 @@ export function MoveEditor({
           }}
         >
           <MonacoEditor
+            key={darkMode ? "dark" : "light"}
             language="move"
             height={height}
             defaultLanguage="move"
             defaultValue={code}
             onChange={handleEditorChange}
-            theme={darkMode ? "github-dark" : "github-light"}
+            theme={darkMode ? "github-dark-default" : "github-light-default"}
             options={{
               minimap: { enabled: false },
               domReadOnly: readOnly,
@@ -166,10 +166,11 @@ export function MoveEditor({
             <Tooltip>
               <TooltipTrigger
                 className={cn(
-                  "flex cursor-pointer disabled:opacity-50 px-2",
-                  darkMode && "text-white",
-                  !darkMode && "text-black",
+                  "flex cursor-pointer disabled:opacity-50 px-2"
                 )}
+                style={{
+                  color: `var(--vscode-editor-foreground)`,
+                }}
                 onClick={() => build(true)}
                 disabled={loading}
               >
@@ -182,10 +183,11 @@ export function MoveEditor({
             <Tooltip>
               <TooltipTrigger
                 className={cn(
-                  "flex cursor-pointer disabled:opacity-50 px-2",
-                  darkMode && "text-white",
-                  !darkMode && "text-black",
+                  "flex cursor-pointer disabled:opacity-50 px-2"
                 )}
+                style={{
+                  color: `var(--vscode-editor-foreground)`,
+                }}
                 onClick={() => build(true)}
                 disabled={loading}
               >
@@ -196,8 +198,8 @@ export function MoveEditor({
               </TooltipContent>
             </Tooltip>
           </div>
-          {loading && <Loading darkMode={darkMode} />}
-          {output && <TerminalOutput output={output} darkMode={darkMode} />}
+          {loading && <Loading />}
+          {output && <TerminalOutput output={output} />}
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

@@ -2,3 +2,5 @@ node_modules
 target
 build
 .DS_STORE
+
+.env

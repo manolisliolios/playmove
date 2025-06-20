@@ -1,13 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export function Loading({
-  className,
-  darkMode,
-}: {
-  className?: string;
-  darkMode?: boolean;
-}) {
-  const colorClass = darkMode ? "bg-white" : "bg-black";
+export function Loading({ className }: { className?: string }) {
   return (
     <div
       className={cn(
@@ -17,19 +10,22 @@ export function Loading({
     >
       <span className="sr-only">Loading...</span>
       <div
-        className={cn(
-          "h-3 w-3 rounded-full animate-bounce [animation-delay:-0.3s]",
-          colorClass,
-        )}
+        className="h-3 w-3 rounded-full animate-bounce [animation-delay:-0.3s]"
+        style={{
+          backgroundColor: `var(--vscode-editor-foreground)`,
+        }}
       ></div>
       <div
-        className={cn(
-          "h-3 w-3 rounded-full animate-bounce [animation-delay:-0.15s]",
-          colorClass,
-        )}
+        className="h-3 w-3 rounded-full animate-bounce [animation-delay:-0.15s]"
+        style={{
+          backgroundColor: `var(--vscode-editor-foreground)`,
+        }}
       ></div>
       <div
-        className={cn("h-3 w-3 rounded-full animate-bounce", colorClass)}
+        className="h-3 w-3 rounded-full animate-bounce"
+        style={{
+          backgroundColor: `var(--vscode-editor-foreground)`,
+        }}
       ></div>
     </div>
   );
