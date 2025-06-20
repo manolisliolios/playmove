@@ -1,4 +1,4 @@
-export function PlayIcon() {
+export function DarkMode() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -11,7 +11,7 @@ export function PlayIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
     </svg>
   );
 }

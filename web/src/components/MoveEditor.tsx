@@ -16,12 +16,15 @@ import { API_URL, cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { FormatIcon } from "@/icons/FormatIcon";
 import { convertShiki } from "@/lib/shiki-highlighter";
+import { DarkMode } from "@/icons/DarkMode";
+import { LightMode } from "@/icons/LightMode";
 
 export function MoveEditor({
   height = "50vh",
   width = "100%",
   readOnly = false,
-  darkMode = true,
+  darkMode = false,
+  setDarkMode,
   code = `module temp::temp;
 
   public fun foo(): bool {
@@ -35,6 +38,7 @@ export function MoveEditor({
   width?: string;
   readOnly?: boolean;
   darkMode?: boolean;
+  setDarkMode?: (darkMode: boolean) => void;
   code?: string;
   setCode?: (code: string | undefined) => void;
   enableLocalStorageSaving?: boolean;
@@ -131,7 +135,6 @@ export function MoveEditor({
           }}
         >
           <MonacoEditor
-            key={darkMode ? "dark" : "light"}
             language="move"
             height={height}
             defaultLanguage="move"
@@ -144,7 +147,7 @@ export function MoveEditor({
               readOnly,
             }}
             beforeMount={async (monaco) => {
-              await convertShiki(monaco);
+              await convertShiki(monaco, darkMode);
             }}
           />
         </ResizablePanel>
@@ -152,6 +155,7 @@ export function MoveEditor({
         {!useVerticalVersion && (
           <ResizableHandle className="max-md:hidden" withHandle />
         )}
+
         <ResizablePanel
           defaultSize={useVerticalVersion ? 100 : 35}
           className="!overflow-y-auto"
@@ -166,8 +170,24 @@ export function MoveEditor({
             <Tooltip>
               <TooltipTrigger
                 className={cn(
-                  "flex cursor-pointer disabled:opacity-50 px-2"
+                  "flex cursor-pointer disabled:opacity-50 px-2 text-xs",
                 )}
+                style={{
+                  color: `var(--vscode-editor-foreground)`,
+                }}
+                onClick={() => setDarkMode?.(!darkMode)}
+                disabled={loading}
+              >
+                {darkMode ? <LightMode /> : <DarkMode />}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Switch to {darkMode ? "Light" : "Dark"} Mode</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger
+                className={cn("flex cursor-pointer disabled:opacity-50 px-2")}
                 style={{
                   color: `var(--vscode-editor-foreground)`,
                 }}
@@ -182,9 +202,7 @@ export function MoveEditor({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger
-                className={cn(
-                  "flex cursor-pointer disabled:opacity-50 px-2"
-                )}
+                className={cn("flex cursor-pointer disabled:opacity-50 px-2")}
                 style={{
                   color: `var(--vscode-editor-foreground)`,
                 }}

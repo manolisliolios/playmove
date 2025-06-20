@@ -1,10 +1,8 @@
 import { shikiToMonaco } from "@shikijs/monaco";
-import { bundledThemes, createHighlighter } from "shiki";
+import { createHighlighter } from "shiki";
 
-export async function convertShiki(monaco: any) {
+export async function convertShiki(monaco: any, darkMode: boolean) {
   monaco.languages.register({ id: "move" });
-
-  console.log(bundledThemes);
 
   const content = await (
     await fetch(
@@ -16,7 +14,9 @@ export async function convertShiki(monaco: any) {
 
   // Create the highlighter, it can be reused
   const highlighter = await createHighlighter({
-    themes: ["github-dark-default", "github-light-default"],
+    themes: darkMode
+      ? ["github-dark-default", "github-light-default"]
+      : ["github-light-default", "github-dark-default"],
     langs: [
       {
         name: "move",
