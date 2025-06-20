@@ -120,7 +120,7 @@ export function MoveEditor({
         direction={useVerticalVersion ? "vertical" : "horizontal"}
       >
         <ResizablePanel
-          defaultSize={showOutputPanel && !useVerticalVersion ? 75 : 100}
+          defaultSize={showOutputPanel && !useVerticalVersion ? 65 : 100}
           style={{
             minHeight: useVerticalVersion ? "300px" : undefined,
           }}
@@ -143,7 +143,7 @@ export function MoveEditor({
           <ResizableHandle className="max-md:hidden" withHandle />
         )}
         <ResizablePanel
-          defaultSize={useVerticalVersion ? 100 : 25}
+          defaultSize={useVerticalVersion ? 100 : 35}
           className="!overflow-y-auto"
           style={{
             height,
@@ -152,12 +152,12 @@ export function MoveEditor({
             borderColor: darkMode ? COLORS.dark.border : COLORS.light.border,
           }}
         >
-          <div className="flex justify-end py-2">
+          <div className="flex items-center justify-end py-2 border-b">
             <Tooltip>
               <TooltipTrigger>
                 <button
                   className={cn(
-                    "cursor-pointer disabled:opacity-50 px-2",
+                    "flex cursor-pointer disabled:opacity-50 px-2",
                     darkMode && "text-white",
                     !darkMode && "text-black",
                   )}
@@ -175,7 +175,7 @@ export function MoveEditor({
               <TooltipTrigger className="">
                 <button
                   className={cn(
-                    "cursor-pointer disabled:opacity-50 px-2",
+                    "flex cursor-pointer disabled:opacity-50 px-2",
                     darkMode && "text-white",
                     !darkMode && "text-black",
                   )}
