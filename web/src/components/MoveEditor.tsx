@@ -3,10 +3,13 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
+import prettier from "prettier/standalone";
+// @ts-ignore-next-line
+import * as movePrettierPlugin from "@mysten/prettier-plugin-move";
 
 import TerminalOutput from "./TerminalOutput";
 import { Loading } from "./ui/loading";
@@ -18,6 +21,8 @@ import { FormatIcon } from "@/icons/FormatIcon";
 import { convertShiki } from "@/lib/shiki-highlighter";
 import { DarkMode } from "@/icons/DarkMode";
 import { LightMode } from "@/icons/LightMode";
+import { CloseIcon } from "@/icons/CloseIcon";
+import { TerminalIcon } from "@/icons/TerminalIcon";
 
 export function MoveEditor({
   height = "50vh",
@@ -46,8 +51,9 @@ export function MoveEditor({
 }) {
   const containerRef = useRef(null);
   const [loading, setLoading] = useState<boolean>(false);
-
   const [useVerticalVersion, setUseVerticalVersion] = useState(false);
+
+  const [showOutput, setShowOutput] = useState(false);
 
   // Track the container's width so we can adjust how the layout of the
   // editor is being displayed!
@@ -89,31 +95,79 @@ export function MoveEditor({
   };
 
   const showOutputPanel = useMemo(() => {
-    return output || loading;
+    return (output || loading) && showOutput;
   }, [output, loading]);
 
-  const build = async (test: boolean = false) => {
-    setLoading(true);
-    setOutput("");
-    try {
-      const res = await fetch(`${API_URL}/build`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: "temp",
-          sources: { temp: code?.trim() || "" },
-          tests: {},
-          build_type: test ? "Test" : "Build",
-        }),
-      });
-      const result = await res.json();
-      setOutput(result.stdout + "\n" + result.stderr);
-    } catch (e) {
-      console.error(e);
-    }
+  const build = useCallback(
+    async (test: boolean = false) => {
+      setLoading(true);
+      setOutput("");
+      setShowOutput(true);
 
-    setLoading(false);
-  };
+      try {
+        const res = await fetch(`${API_URL}/build`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: "temp",
+            sources: { temp: code?.trim() || "" },
+            tests: {},
+            build_type: test ? "Test" : "Build",
+          }),
+        });
+        const result = await res.json();
+        setOutput(result.stdout + "\n" + result.stderr);
+      } catch (e) {
+        console.error(e);
+      }
+
+      setLoading(false);
+    },
+    [code],
+  );
+
+  const formatCode = useCallback(() => {
+    console.log("Formatting...");
+    prettier.format(code, {
+      parser: "move",
+      plugins: [movePrettierPlugin],
+    });
+  }, [code]);
+
+  const codeActions = useMemo(() => {
+    return [
+      {
+        icon: <PlayIcon />,
+        tooltip: "Run tests",
+        onClick: () => build(true),
+      },
+      {
+        icon: <FormatIcon />,
+        tooltip: "Format Code",
+        onClick: formatCode,
+      },
+      {
+        icon: darkMode ? <LightMode /> : <DarkMode />,
+        tooltip: "Switch to Light Mode",
+        onClick: () => setDarkMode?.(!darkMode),
+      },
+
+      {
+        icon: <TerminalIcon />,
+        tooltip: showOutput ? "Hide Terminal" : "Show Terminal",
+        onClick: () => setShowOutput(!showOutput),
+      },
+    ];
+  }, [darkMode, formatCode, build, showOutput]);
+
+  const outputActions = useMemo(() => {
+    return [
+      {
+        icon: <CloseIcon />,
+        tooltip: "Hide Terminal",
+      },
+    ];
+  }, []);
 
   return (
     <div
@@ -122,6 +176,7 @@ export function MoveEditor({
       style={{
         width,
         backgroundColor: `var(--vscode-editor-background)`,
+        borderColor: `${darkMode ? COLORS.dark.border : COLORS.light.border}!important`,
         color: `var(--vscode-editor-foreground)`,
       }}
     >
@@ -130,10 +185,30 @@ export function MoveEditor({
       >
         <ResizablePanel
           defaultSize={showOutputPanel && !useVerticalVersion ? 65 : 100}
+          className="relative"
           style={{
             minHeight: useVerticalVersion ? "300px" : undefined,
           }}
         >
+          <div className="absolute top-[10px] right-[20px] z-50 flex gap-5 flex-col move-editor-actions">
+            {codeActions.map((action) => (
+              <Tooltip key={action.tooltip}>
+                <TooltipTrigger
+                  className={cn(
+                    "flex cursor-pointer disabled:opacity-50 px-2 text-xs",
+                  )}
+                  style={{
+                    color: `var(--vscode-editor-foreground)`,
+                  }}
+                  onClick={action.onClick}
+                  disabled={loading}
+                >
+                  {action.icon}
+                </TooltipTrigger>
+                <TooltipContent side="left">{action.tooltip}</TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
           <MonacoEditor
             language="move"
             height={height}
@@ -152,73 +227,46 @@ export function MoveEditor({
           />
         </ResizablePanel>
 
-        {!useVerticalVersion && (
+        {!useVerticalVersion && showOutput && (
           <ResizableHandle className="max-md:hidden" withHandle />
         )}
 
-        <ResizablePanel
-          defaultSize={useVerticalVersion ? 100 : 35}
-          className="!overflow-y-auto"
-          style={{
-            height,
-            minHeight: useVerticalVersion ? "250px" : undefined,
-            borderTop: useVerticalVersion ? "1px solid" : undefined,
-            borderColor: darkMode ? COLORS.dark.border : COLORS.light.border,
-          }}
-        >
-          <div className="flex items-center justify-end py-2 border-b">
-            <Tooltip>
-              <TooltipTrigger
-                className={cn(
-                  "flex cursor-pointer disabled:opacity-50 px-2 text-xs",
-                )}
-                style={{
-                  color: `var(--vscode-editor-foreground)`,
-                }}
-                onClick={() => setDarkMode?.(!darkMode)}
-                disabled={loading}
-              >
-                {darkMode ? <LightMode /> : <DarkMode />}
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Switch to {darkMode ? "Light" : "Dark"} Mode</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger
-                className={cn("flex cursor-pointer disabled:opacity-50 px-2")}
-                style={{
-                  color: `var(--vscode-editor-foreground)`,
-                }}
-                onClick={() => build(true)}
-                disabled={loading}
-              >
-                <FormatIcon />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Format Code</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                className={cn("flex cursor-pointer disabled:opacity-50 px-2")}
-                style={{
-                  color: `var(--vscode-editor-foreground)`,
-                }}
-                onClick={() => build(true)}
-                disabled={loading}
-              >
-                <PlayIcon />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Run tests</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          {loading && <Loading />}
-          {output && <TerminalOutput output={output} />}
-        </ResizablePanel>
+        {showOutput && (
+          <ResizablePanel
+            defaultSize={useVerticalVersion ? 100 : 35}
+            className="!overflow-y-auto relative"
+            style={{
+              height,
+              minHeight: useVerticalVersion ? "250px" : undefined,
+              borderTop: useVerticalVersion ? "1px solid" : undefined,
+              borderColor: darkMode ? COLORS.dark.border : COLORS.light.border,
+            }}
+          >
+            <div className="absolute top-[10px] right-[5px] z-50 flex gap-5 flex-col-reverse output-actions">
+              {outputActions.map((action) => (
+                <Tooltip key={action.tooltip}>
+                  <TooltipTrigger
+                    className={cn(
+                      "flex cursor-pointer disabled:opacity-50 px-2 text-xs",
+                    )}
+                    style={{
+                      color: `var(--vscode-editor-foreground)`,
+                    }}
+                    onClick={() => setShowOutput(false)}
+                    disabled={loading}
+                  >
+                    {action.icon}
+                  </TooltipTrigger>
+                  <TooltipContent>{action.tooltip}</TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+            {loading && <Loading />}
+            <TerminalOutput
+              output={output || "Run output will be visible here."}
+            />
+          </ResizablePanel>
+        )}
       </ResizablePanelGroup>
     </div>
   );

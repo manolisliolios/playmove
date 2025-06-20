@@ -11,12 +11,12 @@ true
 }`,
   );
 
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   return (
-    <div className="py-5 px-10">
+    <div className="p-0">
       <MoveEditor
-        height={"500px"}
+        height={"99.5vh"}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
         code={code}
