@@ -234,7 +234,10 @@ export function MoveEditor({
         </ResizablePanel>
 
         {!useVerticalVersion && showOutput && (
-          <ResizableHandle className="max-md:hidden" withHandle />
+          <ResizableHandle
+            className="max-md:hidden"
+            withHandle
+          />
         )}
 
         {showOutput && (
