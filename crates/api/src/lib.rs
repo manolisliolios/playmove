@@ -12,10 +12,6 @@ pub(crate) mod helpers;
 
 /// POST `/build` endpoint.
 pub async fn build_source(Json(payload): Json<Code>) -> Result<Json<BuildResult>, ApiError> {
-    eprintln!(
-        "Building name: {}, source: {:?}, tests: {:?}",
-        payload.name, payload.sources, payload.tests
-    );
     match payload.build().await {
         Ok(response) => Ok(Json(response)),
         Err(e) => {

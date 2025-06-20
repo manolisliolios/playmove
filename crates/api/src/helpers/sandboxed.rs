@@ -36,8 +36,8 @@ pub async fn run_sandboxed(program: &str, args: &[&str], timeout_secs: u64) -> S
     let mut stdout_reader = BufReader::new(stdout);
     let mut stderr_reader = BufReader::new(stderr);
 
-    let mut stdout_buf = Vec::new();
-    let mut stderr_buf = Vec::new();
+    let stdout_buf = Vec::new();
+    let stderr_buf = Vec::new();
 
     let read_and_wait = async {
         let stdout_task = tokio::spawn(async move {

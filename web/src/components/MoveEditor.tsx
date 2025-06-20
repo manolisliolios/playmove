@@ -3,36 +3,62 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import TerminalOutput from "./TerminalOutput";
 import { Loading } from "./ui/loading";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { COLORS } from "@/lib/colors";
+import { PlayIcon } from "@/icons/PlayIcon";
+import { cn } from "@/lib/utils";
 
 export function MoveEditor({
   height = "50vh",
+  width = "100%",
   readOnly = false,
   darkMode = true,
-}: {
-  height?: string;
-  readOnly?: boolean;
-  darkMode?: boolean;
-}) {
-  const [loading, setLoading] = useState<boolean>(false);
+  code = `module temp::temp;
 
-  const isMobile = useMediaQuery("(max-width: 768px)");
-
-  const [code, setCode] = useState<string | undefined>(
-    localStorage.getItem("code") ||
-      `module temp::temp;
-  
   public fun foo(): bool {
       true
   }`,
-  );
+  setCode,
+}: {
+  height?: string;
+  width?: string;
+  readOnly?: boolean;
+  darkMode?: boolean;
+  code?: string;
+  setCode?: (code: string | undefined) => void;
+}) {
+  const containerRef = useRef(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [useVerticalVersion, setUseVerticalVersion] = useState(false);
+
+  // Track the container's width so we can adjust how the layout of the
+  // editor is being displayed!
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const width = entry.contentRect.width;
+        if (width < 600) {
+          setUseVerticalVersion(true);
+        } else {
+          setUseVerticalVersion(false);
+        }
+      }
+    });
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // const [code, setCode] = useState<string | undefined>(initialCode);
 
   const [output, setOutput] = useState<string | undefined>(undefined);
 
@@ -47,7 +73,7 @@ export function MoveEditor({
   }, [debouncedCode]);
 
   const handleEditorChange = (value: string | undefined) => {
-    setCode(value);
+    setCode?.(value);
   };
 
   const showOutputPanel = useMemo(() => {
@@ -78,24 +104,32 @@ export function MoveEditor({
   };
 
   return (
-    <div className="border move-editor-container">
-      <div className="flex items-center justify-between border-b-2">
-        <div className="text-2xl font-bold shrink-0">Move Editor</div>
-        <div className="ml-auto">
-          <button
-            className="bg-gray-500 text-white cursor-pointer disabled:opacity-50"
-            style={{ padding: "1rem", fontSize: "1rem" }}
-            onClick={() => build(true)}
-            disabled={loading}
-          >
-            Test
-          </button>
-        </div>
-      </div>
-
-      {isMobile ? "mobile" : ""}
-      <ResizablePanelGroup direction={isMobile ? "vertical" : "horizontal"}>
-        <ResizablePanel defaultSize={showOutputPanel && !isMobile ? 75 : 100}>
+    <div
+      ref={containerRef}
+      className="border move-editor-container relative"
+      style={{ width }}
+    >
+      <ResizablePanelGroup
+        direction={useVerticalVersion ? "vertical" : "horizontal"}
+      >
+        <button
+          className={cn(
+            "cursor-pointer disabled:opacity-50 absolute top-0 right-0 z-10",
+            darkMode && "text-black bg-white",
+            !darkMode && "text-black",
+          )}
+          style={{ padding: "1rem", fontSize: "1rem" }}
+          onClick={() => build(true)}
+          disabled={loading}
+        >
+          <PlayIcon />
+        </button>
+        <ResizablePanel
+          defaultSize={showOutputPanel && !useVerticalVersion ? 75 : 100}
+          style={{
+            minHeight: useVerticalVersion ? height : undefined,
+          }}
+        >
           <MonacoEditor
             height={height}
             defaultLanguage="move"
@@ -111,15 +145,21 @@ export function MoveEditor({
         </ResizablePanel>
         {showOutputPanel && (
           <>
-            <ResizableHandle className="max-md:hidden" withHandle />
+            {!useVerticalVersion && (
+              <ResizableHandle className="max-md:hidden" withHandle />
+            )}
             <ResizablePanel
-              defaultSize={isMobile ? 100 : 25}
-              className="!overflow-y-auto"
+              defaultSize={useVerticalVersion ? 100 : 25}
               style={{
                 height,
                 backgroundColor: darkMode
                   ? COLORS.dark.background
                   : COLORS.light.background,
+                minHeight: useVerticalVersion ? height : undefined,
+                borderTop: useVerticalVersion ? "1px solid" : undefined,
+                borderColor: darkMode
+                  ? COLORS.dark.border
+                  : COLORS.light.border,
               }}
             >
               {loading && <Loading darkMode={darkMode} />}
