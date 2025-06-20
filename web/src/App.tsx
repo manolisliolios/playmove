@@ -15,7 +15,7 @@ true
     <div className="py-5 px-10">
       <MoveEditor
         height={"500px"}
-        darkMode={false}
+        darkMode={true}
         code={code}
         setCode={setCode}
       />

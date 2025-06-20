@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
+
 import TerminalOutput from "./TerminalOutput";
 import { Loading } from "./ui/loading";
 import { COLORS } from "@/lib/colors";
@@ -14,6 +15,7 @@ import { PlayIcon } from "@/icons/PlayIcon";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { FormatIcon } from "@/icons/FormatIcon";
+import { convertShiki } from "@/lib/shiki-highlighter";
 
 export function MoveEditor({
   height = "50vh",
@@ -26,6 +28,8 @@ export function MoveEditor({
       true
   }`,
   setCode,
+  enableLocalStorageSaving = true,
+  localStorageKey = "moveground.code",
 }: {
   height?: string;
   width?: string;
@@ -33,6 +37,8 @@ export function MoveEditor({
   darkMode?: boolean;
   code?: string;
   setCode?: (code: string | undefined) => void;
+  enableLocalStorageSaving?: boolean;
+  localStorageKey?: string;
 }) {
   const containerRef = useRef(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -60,19 +66,19 @@ export function MoveEditor({
     return () => observer.disconnect();
   }, []);
 
-  // const [code, setCode] = useState<string | undefined>(initialCode);
-
   const [output, setOutput] = useState<string | undefined>(undefined);
 
   const debouncedCode = useDebounce(code, 1000);
 
   useEffect(() => {
+    if (!enableLocalStorageSaving) return;
+
     if (!debouncedCode) {
-      localStorage.removeItem("code");
+      localStorage.removeItem(localStorageKey);
       return;
     }
-    localStorage.setItem("code", debouncedCode);
-  }, [debouncedCode]);
+    localStorage.setItem(localStorageKey, debouncedCode);
+  }, [debouncedCode, enableLocalStorageSaving, localStorageKey]);
 
   const handleEditorChange = (value: string | undefined) => {
     setCode?.(value);
@@ -126,15 +132,19 @@ export function MoveEditor({
           }}
         >
           <MonacoEditor
+            language="move"
             height={height}
             defaultLanguage="move"
             defaultValue={code}
             onChange={handleEditorChange}
-            theme={darkMode ? "vs-dark" : "light"}
+            theme={darkMode ? "github-dark" : "github-light"}
             options={{
               minimap: { enabled: false },
               domReadOnly: readOnly,
               readOnly,
+            }}
+            beforeMount={async (monaco) => {
+              await convertShiki(monaco);
             }}
           />
         </ResizablePanel>
@@ -154,36 +164,32 @@ export function MoveEditor({
         >
           <div className="flex items-center justify-end py-2 border-b">
             <Tooltip>
-              <TooltipTrigger>
-                <button
-                  className={cn(
-                    "flex cursor-pointer disabled:opacity-50 px-2",
-                    darkMode && "text-white",
-                    !darkMode && "text-black",
-                  )}
-                  onClick={() => build(true)}
-                  disabled={loading}
-                >
-                  <FormatIcon />
-                </button>
+              <TooltipTrigger
+                className={cn(
+                  "flex cursor-pointer disabled:opacity-50 px-2",
+                  darkMode && "text-white",
+                  !darkMode && "text-black",
+                )}
+                onClick={() => build(true)}
+                disabled={loading}
+              >
+                <FormatIcon />
               </TooltipTrigger>
               <TooltipContent>
                 <p>Format Code</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger className="">
-                <button
-                  className={cn(
-                    "flex cursor-pointer disabled:opacity-50 px-2",
-                    darkMode && "text-white",
-                    !darkMode && "text-black",
-                  )}
-                  onClick={() => build(true)}
-                  disabled={loading}
-                >
-                  <PlayIcon />
-                </button>
+              <TooltipTrigger
+                className={cn(
+                  "flex cursor-pointer disabled:opacity-50 px-2",
+                  darkMode && "text-white",
+                  !darkMode && "text-black",
+                )}
+                onClick={() => build(true)}
+                disabled={loading}
+              >
+                <PlayIcon />
               </TooltipTrigger>
               <TooltipContent>
                 <p>Run tests</p>
