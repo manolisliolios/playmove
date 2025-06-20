@@ -12,7 +12,7 @@ const TerminalOutput = ({
 }) => {
   return (
     <pre
-      className={`whitespace-pre-wrap p-2 text-sm ${className}`}
+      className={`whitespace-pre-wrap px-2 text-sm ${className}`}
       style={{
         backgroundColor: darkMode
           ? COLORS.dark.background

@@ -12,6 +12,8 @@ import { Loading } from "./ui/loading";
 import { COLORS } from "@/lib/colors";
 import { PlayIcon } from "@/icons/PlayIcon";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { FormatIcon } from "@/icons/FormatIcon";
 
 export function MoveEditor({
   height = "50vh",
@@ -107,27 +109,20 @@ export function MoveEditor({
     <div
       ref={containerRef}
       className="border move-editor-container relative"
-      style={{ width }}
+      style={{
+        width,
+        backgroundColor: darkMode
+          ? COLORS.dark.background
+          : COLORS.light.background,
+      }}
     >
       <ResizablePanelGroup
         direction={useVerticalVersion ? "vertical" : "horizontal"}
       >
-        <button
-          className={cn(
-            "cursor-pointer disabled:opacity-50 absolute top-0 right-0 z-10",
-            darkMode && "text-black bg-white",
-            !darkMode && "text-black",
-          )}
-          style={{ padding: "1rem", fontSize: "1rem" }}
-          onClick={() => build(true)}
-          disabled={loading}
-        >
-          <PlayIcon />
-        </button>
         <ResizablePanel
           defaultSize={showOutputPanel && !useVerticalVersion ? 75 : 100}
           style={{
-            minHeight: useVerticalVersion ? height : undefined,
+            minHeight: useVerticalVersion ? "300px" : undefined,
           }}
         >
           <MonacoEditor
@@ -143,30 +138,61 @@ export function MoveEditor({
             }}
           />
         </ResizablePanel>
-        {showOutputPanel && (
-          <>
-            {!useVerticalVersion && (
-              <ResizableHandle className="max-md:hidden" withHandle />
-            )}
-            <ResizablePanel
-              defaultSize={useVerticalVersion ? 100 : 25}
-              style={{
-                height,
-                backgroundColor: darkMode
-                  ? COLORS.dark.background
-                  : COLORS.light.background,
-                minHeight: useVerticalVersion ? height : undefined,
-                borderTop: useVerticalVersion ? "1px solid" : undefined,
-                borderColor: darkMode
-                  ? COLORS.dark.border
-                  : COLORS.light.border,
-              }}
-            >
-              {loading && <Loading darkMode={darkMode} />}
-              {output && <TerminalOutput output={output} darkMode={darkMode} />}
-            </ResizablePanel>
-          </>
+
+        {!useVerticalVersion && (
+          <ResizableHandle className="max-md:hidden" withHandle />
         )}
+        <ResizablePanel
+          defaultSize={useVerticalVersion ? 100 : 25}
+          className="!overflow-y-auto"
+          style={{
+            height,
+            minHeight: useVerticalVersion ? "250px" : undefined,
+            borderTop: useVerticalVersion ? "1px solid" : undefined,
+            borderColor: darkMode ? COLORS.dark.border : COLORS.light.border,
+          }}
+        >
+          <div className="flex justify-end py-2">
+            <Tooltip>
+              <TooltipTrigger>
+                <button
+                  className={cn(
+                    "cursor-pointer disabled:opacity-50 px-2",
+                    darkMode && "text-white",
+                    !darkMode && "text-black",
+                  )}
+                  onClick={() => build(true)}
+                  disabled={loading}
+                >
+                  <FormatIcon />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Format Code</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger className="">
+                <button
+                  className={cn(
+                    "cursor-pointer disabled:opacity-50 px-2",
+                    darkMode && "text-white",
+                    !darkMode && "text-black",
+                  )}
+                  onClick={() => build(true)}
+                  disabled={loading}
+                >
+                  <PlayIcon />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Run tests</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          {loading && <Loading darkMode={darkMode} />}
+          {output && <TerminalOutput output={output} darkMode={darkMode} />}
+        </ResizablePanel>
       </ResizablePanelGroup>
     </div>
   );
