@@ -16,7 +16,7 @@ This is mainly useful for documentation pages!
 
 ## Todos
 
-- [] Create a proper deployment docker image
-- [] Figure out how to warm up git cache & update SUI binary when releases are made
-- [] Add metrics
-- [] Create a "gist"-based sharing/import of links
+- [ ] Create a proper deployment docker image
+- [ ] Figure out how to warm up git cache & update SUI binary when releases are made
+- [ ] Add metrics
+- [ ] Create a "gist"-based sharing/import of links
