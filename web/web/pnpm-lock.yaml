@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@mliolios/playmove-react':
-    specifier: ^0.0.3
-    version: 0.0.3(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7)(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1)(react@18.3.1)(shiki@3.7.0)(vite@6.3.5)
+    specifier: ^0.0.5
+    version: 0.0.5(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7)(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1)(react@18.3.1)(shiki@3.7.0)(vite@6.3.5)
   '@mysten/dapp-kit':
     specifier: 0.15.2
     version: 0.15.2(@tanstack/react-query@5.81.2)(@types/react-dom@18.3.7)(@types/react@18.3.23)(react-dom@18.3.1)(react@18.3.1)(typescript@5.8.3)
@@ -530,8 +530,8 @@ packages:
       '@jridgewell/sourcemap-codec': 1.5.0
     dev: false
 
-  /@mliolios/playmove-react@0.0.3(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7)(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1)(react@18.3.1)(shiki@3.7.0)(vite@6.3.5):
-    resolution: {integrity: sha512-s0+IsOQvwfqVsugrCIr/d3pVl6TVv9a5b6cnj02schjad768tTk/zCye1LRitfY5ejX25Mny+gUNouK29zCuaA==}
+  /@mliolios/playmove-react@0.0.5(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7)(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1)(react@18.3.1)(shiki@3.7.0)(vite@6.3.5):
+    resolution: {integrity: sha512-bejrS276Zx1yPCGGjOjYwwf/kRC1YTs5gu0yN+4340DhuH4CFGguKKr9xCw4jBhLbJrmJzVJJpr1qHG5nvC8xQ==}
     peerDependencies:
       '@shikijs/monaco': ^3.7.0
       monaco-editor: ^0.52.2

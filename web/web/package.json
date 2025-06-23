@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
     "dependencies": {
-    "@mliolios/playmove-react": "^0.0.3",
+    "@mliolios/playmove-react": "^0.0.5",
     "@mysten/dapp-kit": "0.15.2",
     "@mysten/sui": "1.26.1",
     "@radix-ui/colors": "^3.0.0",
