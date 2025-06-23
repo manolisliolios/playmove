@@ -11,3 +11,12 @@ The project consists of two parts:
 
 There's a react component that can be used to render playgrounds in your website. 
 This is mainly useful for documentation pages!
+
+
+
+## Todos
+
+- [] Create a proper deployment docker image
+- [] Figure out how to warm up git cache & update SUI binary when releases are made
+- [] Add metrics
+- [] Create a "gist"-based sharing/import of links
