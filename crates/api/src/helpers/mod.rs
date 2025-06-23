@@ -98,7 +98,7 @@ impl Code {
         let mut file = File::create(prettier_config.clone())?;
         file.write_all(PRETTIER_DEFAULT_CONFIG.as_bytes())?;
 
-        run_sandboxed(
+        let output = run_sandboxed(
             "prettier-move",
             &vec![
                 "--config",
@@ -230,6 +230,5 @@ const PRETTIER_DEFAULT_CONFIG: &str = r#"
 	"tabWidth": 4,
 	"useModuleLabel": true,
 	"autoGroupImports": "module",
-	"plugins": ["@mysten/prettier-plugin-move"]
 }
 "#;

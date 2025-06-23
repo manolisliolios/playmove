@@ -130,13 +130,27 @@ export function MoveEditor({
     [code]
   );
 
-  const formatCode = useCallback(() => {
-    console.log("Formatting...");
-    // const output = prettier.format(code, {
-    //   parser: "move",
-    //   plugins: [movePrettierPlugin],
-    // });
-    // console.log(output);
+  const formatCode = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${apiUrl}/format`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "temp",
+          sources: { temp: code?.trim() || "" },
+          tests: {},
+        }),
+      });
+
+      const result = await res.json();
+
+      handleEditorChange(result.sources.temp || "");
+    } catch (e) {
+      console.error(e);
+    }
+
+    setLoading(false);
   }, [code]);
 
   const codeActions = useMemo(() => {
@@ -183,8 +197,9 @@ export function MoveEditor({
         backgroundColor: `var(--vscode-editor-background)`,
         borderWidth: "1px",
         borderStyle: "solid",
-        borderColor: `${darkMode ? COLORS.dark.border : COLORS.light.border
-          }!important`,
+        borderColor: `${
+          darkMode ? COLORS.dark.border : COLORS.light.border
+        }!important`,
         color: `var(--vscode-editor-foreground)`,
       }}
     >
@@ -222,6 +237,7 @@ export function MoveEditor({
             height={height}
             defaultLanguage="move"
             defaultValue={code}
+            value={code}
             onChange={handleEditorChange}
             theme={darkMode ? "github-dark-default" : "github-light-default"}
             options={{
