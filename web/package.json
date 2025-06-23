@@ -7,7 +7,8 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "deployment": "pnpm build && npm publish"
+    "build:component": "vite build --config vite.component.config.mts",
+    "npmDeployment": "pnpm build:component && npm publish"
   },
   "main": "./dist/playmove.cjs.js",
   "module": "./dist/playmove.es.js",

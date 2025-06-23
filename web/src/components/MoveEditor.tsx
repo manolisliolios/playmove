@@ -7,9 +7,6 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
-// import prettier from "prettier/standalone";
-// @ts-ignore-next-line
-// import * as movePrettierPlugin from "../lib/prettier-move/src/index";
 
 import TerminalOutput from "./TerminalOutput";
 import { Loading } from "./ui/loading";
@@ -23,6 +20,8 @@ import { DarkMode } from "@/icons/DarkMode";
 import { LightMode } from "@/icons/LightMode";
 import { CloseIcon } from "@/icons/CloseIcon";
 import { TerminalIcon } from "@/icons/TerminalIcon";
+import { CopyIcon } from "@/icons/CopyIcon";
+import { CheckIcon } from "@/icons/CheckIcon";
 
 const MODULE_NAME_REGEX = /\bmodule\s+([a-zA-Z_][\w]*)::([a-zA-Z_][\w]*)/;
 
@@ -32,6 +31,21 @@ const getModuleName = (code: string) => {
     return match[1];
   }
   return "temp";
+};
+
+const shareToClipboard = (text: string) => {
+  // clean up text to be a valid uri param
+  const uriParam = encodeURIComponent(text);
+  navigator.clipboard.writeText(window.location.origin + "#" + uriParam);
+};
+
+const importFromUri = () => {
+  if (window.location.hash) {
+    const code = decodeURIComponent(window.location.hash.slice(1));
+    return code;
+  }
+
+  return null;
 };
 
 export interface MoveEditorProps {
@@ -53,11 +67,7 @@ export function MoveEditor({
   readOnly = false,
   darkMode = false,
   setDarkMode,
-  code = `module temp::temp;
-
-  public fun foo(): bool {
-      true
-  }`,
+  code,
   apiUrl = API_URL,
   setCode,
   enableLocalStorageSaving = true,
@@ -66,8 +76,14 @@ export function MoveEditor({
   const containerRef = useRef(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [useVerticalVersion, setUseVerticalVersion] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const [showOutput, setShowOutput] = useState(false);
+
+  useEffect(() => {
+    const code = importFromUri();
+    if (code) handleEditorChange(code);
+  }, []);
 
   // Track the container's width so we can adjust how the layout of the
   // editor is being displayed!
@@ -145,7 +161,6 @@ export function MoveEditor({
     setShowOutput(true);
     const name = getModuleName(code || "");
 
-    console.log(name);
     try {
       const res = await fetch(`${apiUrl}/format`, {
         method: "POST",
@@ -192,8 +207,20 @@ export function MoveEditor({
         tooltip: showOutput ? "Hide Terminal" : "Show Terminal",
         onClick: () => setShowOutput(!showOutput),
       },
+      {
+        icon: copied ? <CheckIcon /> : <CopyIcon />,
+        tooltip: copied ? "Copied!" : "Copy Share Link",
+        onClick: () => {
+          setCopied(true);
+          shareToClipboard(code || "");
+
+          setTimeout(() => {
+            setCopied(false);
+          }, 2000);
+        },
+      },
     ];
-  }, [darkMode, formatCode, build, showOutput]);
+  }, [darkMode, formatCode, build, showOutput, copied]);
 
   const outputActions = useMemo(() => {
     return [
