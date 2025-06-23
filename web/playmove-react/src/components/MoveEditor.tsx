@@ -132,6 +132,8 @@ export function MoveEditor({
 
   const formatCode = useCallback(async () => {
     setLoading(true);
+    setShowOutput(true);
+
     try {
       const res = await fetch(`${apiUrl}/format`, {
         method: "POST",
@@ -146,7 +148,6 @@ export function MoveEditor({
       const result = await res.json();
 
       handleEditorChange(result.sources.temp || "");
-      setShowOutput(true);
       setOutput("Code formatted successfully.");
     } catch (e) {
       console.error(e);
