@@ -230,6 +230,5 @@ const PRETTIER_DEFAULT_CONFIG: &str = r#"
 	"tabWidth": 4,
 	"useModuleLabel": true,
 	"autoGroupImports": "module",
-	"plugins": ["@mysten/prettier-plugin-move"]
 }
 "#;
