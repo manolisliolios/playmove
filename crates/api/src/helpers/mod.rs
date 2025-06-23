@@ -98,7 +98,7 @@ impl Code {
         let mut file = File::create(prettier_config.clone())?;
         file.write_all(PRETTIER_DEFAULT_CONFIG.as_bytes())?;
 
-        let output = run_sandboxed(
+        run_sandboxed(
             "prettier-move",
             &vec![
                 "--config",
