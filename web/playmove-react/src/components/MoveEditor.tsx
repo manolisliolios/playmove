@@ -245,7 +245,7 @@ export function MoveEditor({
             theme={darkMode ? "github-dark-default" : "github-light-default"}
             options={{
               minimap: { enabled: false },
-              domReadOnly: readOnly || loading,
+              domReadOnly: readOnly,
               readOnly,
             }}
             beforeMount={async (monaco) => {
