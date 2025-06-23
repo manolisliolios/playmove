@@ -34,6 +34,7 @@ export interface MoveEditorProps {
   setCode?: (code: string | undefined) => void;
   enableLocalStorageSaving?: boolean;
   localStorageKey?: string;
+  apiUrl?: string;
 }
 
 export function MoveEditor({
@@ -47,6 +48,7 @@ export function MoveEditor({
   public fun foo(): bool {
       true
   }`,
+  apiUrl = API_URL,
   setCode,
   enableLocalStorageSaving = true,
   localStorageKey = "moveground.code",
@@ -107,7 +109,7 @@ export function MoveEditor({
       setShowOutput(true);
 
       try {
-        const res = await fetch(`${API_URL}/build`, {
+        const res = await fetch(`${apiUrl}/build`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -181,9 +183,8 @@ export function MoveEditor({
         backgroundColor: `var(--vscode-editor-background)`,
         borderWidth: "1px",
         borderStyle: "solid",
-        borderColor: `${
-          darkMode ? COLORS.dark.border : COLORS.light.border
-        }!important`,
+        borderColor: `${darkMode ? COLORS.dark.border : COLORS.light.border
+          }!important`,
         color: `var(--vscode-editor-foreground)`,
       }}
     >

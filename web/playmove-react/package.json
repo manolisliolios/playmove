@@ -1,7 +1,6 @@
 {
-  "name": "@mliolios/move-playground-react",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@mliolios/playmove-react",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,17 +8,24 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "main": "./dist/move-playground.cjs.js",
-  "module": "./dist/move-playground.es.js",
-  "types": "./dist/move-playground.d.ts",
+  "main": "./dist/playmove.cjs.js",
+  "module": "./dist/playmove.es.js",
+  "types": "./dist/playmove.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/move-playground.d.ts",
-      "import": "./dist/move-playground.es.js",
-      "require": "./dist/move-playground.cjs.js"
+      "types": "./dist/playmove.d.ts",
+      "import": "./dist/playmove.es.js",
+      "require": "./dist/playmove.cjs.js"
     },
-    "./style.css": "./dist/move-playground-react.css"
+    "./style.css": "./dist/playmove-react.css"
   },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "src"
+  ],
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@radix-ui/colors": "^3.0.0",

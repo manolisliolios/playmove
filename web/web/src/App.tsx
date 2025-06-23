@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { MoveEditor } from "@mliolios/move-playground-react";
+import { MoveEditor } from "@mliolios/playmove-react";
 
 function App() {
   const [code, setCode] = useState<string | undefined>(

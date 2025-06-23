@@ -13,7 +13,8 @@ use tokio::time::Instant;
 
 use crate::helpers::sandboxed::run_sandboxed;
 
-const DEFAULT_TIMEOUT: u64 = 5;
+/// The default timeout for the build process in seconds.
+const DEFAULT_TIMEOUT: u64 = 20;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum BuildType {

@@ -15,8 +15,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve("src", "index.ts"),
-      name: "move-playground",
-      fileName: (format) => `move-playground.${format}.js`,
+      name: "playmove",
+      fileName: (format) => `playmove.${format}.js`,
       formats: ["es", "cjs"],
     },
     rollupOptions: {

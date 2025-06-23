@@ -9,9 +9,9 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "dependencies": {
+    "dependencies": {
+    "@mliolios/playmove-react": "^0.0.3",
     "@mysten/dapp-kit": "0.15.2",
-    "@mliolios/move-playground-react": "file:../move-playground-react",
     "@mysten/sui": "1.26.1",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-icons": "^1.3.0",
