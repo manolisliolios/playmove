@@ -4,12 +4,18 @@ import { MoveEditor } from "@mliolios/playmove-react";
 
 function App() {
   const [code, setCode] = useState<string | undefined>(
-    localStorage.getItem("code") ||
+    localStorage.getItem("playmove-code") ||
       `module temp::temp;
 
 public fun foo(): bool {
-true
-}`,
+  true
+}
+
+#[test]
+fun test() {
+    std::debug::print(&b"Welcome to the playground!".to_string());
+}
+`,
   );
 
   const [darkMode, setDarkMode] = useState(false);
@@ -22,6 +28,8 @@ true
         setDarkMode={setDarkMode}
         code={code}
         setCode={setCode}
+        enableLocalStorageSaving={true}
+        localStorageKey="playmove-code"
       />
     </div>
   );
