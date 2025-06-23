@@ -239,6 +239,7 @@ export function MoveEditor({
           <ResizableHandle
             className="max-md:hidden"
             withHandle
+            darkMode={darkMode}
           />
         )}
 
