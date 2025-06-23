@@ -146,8 +146,11 @@ export function MoveEditor({
       const result = await res.json();
 
       handleEditorChange(result.sources.temp || "");
+      setShowOutput(true);
+      setOutput("Code formatted successfully.");
     } catch (e) {
       console.error(e);
+      setOutput("Error formatting code.");
     }
 
     setLoading(false);
@@ -242,7 +245,7 @@ export function MoveEditor({
             theme={darkMode ? "github-dark-default" : "github-light-default"}
             options={{
               minimap: { enabled: false },
-              domReadOnly: readOnly,
+              domReadOnly: readOnly || loading,
               readOnly,
             }}
             beforeMount={async (monaco) => {
