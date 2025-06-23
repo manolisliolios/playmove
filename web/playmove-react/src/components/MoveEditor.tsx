@@ -24,6 +24,16 @@ import { LightMode } from "@/icons/LightMode";
 import { CloseIcon } from "@/icons/CloseIcon";
 import { TerminalIcon } from "@/icons/TerminalIcon";
 
+const MODULE_NAME_REGEX = /\bmodule\s+([a-zA-Z_][\w]*)::([a-zA-Z_][\w]*)/;
+
+const getModuleName = (code: string) => {
+  const match = code.match(MODULE_NAME_REGEX);
+  if (match) {
+    return match[1];
+  }
+  return "temp";
+};
+
 export interface MoveEditorProps {
   height?: string;
   width?: string;
@@ -107,14 +117,14 @@ export function MoveEditor({
       setLoading(true);
       setOutput("");
       setShowOutput(true);
-
+      const name = getModuleName(code || "");
       try {
         const res = await fetch(`${apiUrl}/build`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: "temp",
-            sources: { temp: code?.trim() || "" },
+            name,
+            sources: { [name]: code?.trim() || "" },
             tests: {},
             build_type: test ? "Test" : "Build",
           }),
@@ -133,21 +143,23 @@ export function MoveEditor({
   const formatCode = useCallback(async () => {
     setLoading(true);
     setShowOutput(true);
+    const name = getModuleName(code || "");
 
+    console.log(name);
     try {
       const res = await fetch(`${apiUrl}/format`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: "temp",
-          sources: { temp: code?.trim() || "" },
+          name,
+          sources: { [name]: code?.trim() || "" },
           tests: {},
         }),
       });
 
       const result = await res.json();
 
-      handleEditorChange(result.sources.temp || "");
+      handleEditorChange(result.sources[name] || "");
       setOutput("Code formatted successfully.");
     } catch (e) {
       console.error(e);
