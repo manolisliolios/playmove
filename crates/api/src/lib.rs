@@ -23,8 +23,8 @@ pub async fn build_source(Json(payload): Json<BuildRequest>) -> Result<Json<Buil
     }
 }
 
-pub async fn format_source(Json(payload): Json<BuildRequest>) -> Result<Json<Code>, ApiError> {
-    match payload.code.format().await {
+pub async fn format_source(Json(payload): Json<Code>) -> Result<Json<Code>, ApiError> {
+    match payload.format().await {
         Ok(response) => Ok(Json(response)),
         Err(e) => Err(ApiError::InternalServerError(e.to_string())),
     }
