@@ -51,6 +51,7 @@ impl Code {
                 if self.is_test() { "test" } else { "build" },
                 "--path",
                 temp_dir.path().join("temp").to_str().unwrap(),
+                "--skip-fetch-latest-git-deps",
             ],
             DEFAULT_TIMEOUT,
         )
