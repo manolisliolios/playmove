@@ -1,5 +1,5 @@
 {
-  "name": "@mysten/move-playground-react",
+  "name": "@mliolios/move-playground-react",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -18,7 +18,7 @@
       "import": "./dist/move-playground.es.js",
       "require": "./dist/move-playground.cjs.js"
     },
-    "./style.css": "./dist/move-playground-component.css"
+    "./style.css": "./dist/move-playground-react.css"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

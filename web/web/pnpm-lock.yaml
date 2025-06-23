@@ -8,12 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@mliolios/move-playground-react':
+        specifier: file:../move-playground-react
+        version: file:../move-playground-react(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(shiki@3.7.0)(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1))
       '@mysten/dapp-kit':
         specifier: 0.15.2
         version: 0.15.2(@tanstack/react-query@5.80.10(react@18.3.1))(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.8.3)
-      '@mysten/move-playground-component':
-        specifier: file:../move-playground-component
-        version: file:../move-playground-component(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(shiki@3.7.0)(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1))
       '@mysten/sui':
         specifier: 1.26.1
         version: 1.26.1(typescript@5.8.3)
@@ -380,6 +380,15 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
+  '@mliolios/move-playground-react@file:../move-playground-react':
+    resolution: {directory: ../move-playground-react, type: directory}
+    peerDependencies:
+      '@shikijs/monaco': ^3.7.0
+      monaco-editor: ^0.52.2
+      react: ^18.3.1
+      react-dom: ^18.3.1
+      shiki: ^3.7.0
+
   '@monaco-editor/loader@1.5.0':
     resolution: {integrity: sha512-hKoGSM+7aAc7eRTRjpqAZucPmoNOC4UUbknb/VNoTkEIkCPhqV8LfbsgM1webRM7S/z21eHEx9Fkwx8Z/C/+Xw==}
 
@@ -399,14 +408,9 @@ packages:
       '@tanstack/react-query': ^5.0.0
       react: '*'
 
-  '@mysten/move-playground-component@file:../move-playground-component':
-    resolution: {directory: ../move-playground-component, type: directory}
-    peerDependencies:
-      '@shikijs/monaco': ^3.7.0
-      monaco-editor: ^0.52.2
-      react: ^18.3.1
-      react-dom: ^18.3.1
-      shiki: ^3.7.0
+  '@mysten/prettier-plugin-move@0.3.1':
+    resolution: {integrity: sha512-Xv3TQ1bG29R8WKLIhBM6Yl4Vyatxap1FmyVE+4RoULtLOQ79e2Xe2r1Fr/mqhU4eUBTLX/Mx07e+CByZSP1SXQ==}
+    hasBin: true
 
   '@mysten/sui@1.26.1':
     resolution: {integrity: sha512-bBVvn2wZKipAvuUkKzHwGhs1JiIM33+b97d0uIWg3T6dJH/n1nfnGrzkBQsMGpoBAFOIUnKQAZmDwT4qvJbKkg==}
@@ -2409,6 +2413,11 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
+  vite-plugin-wasm@3.4.1:
+    resolution: {integrity: sha512-ja3nSo2UCkVeitltJGkS3pfQHAanHv/DqGatdI39ja6McgABlpsZ5hVgl6wuR8Qx5etY3T5qgDQhOWzc5RReZA==}
+    peerDependencies:
+      vite: ^2 || ^3 || ^4 || ^5 || ^6
+
   vite@6.3.5:
     resolution: {integrity: sha512-cZn6NDFE7wdTpINgs++ZJ4N49W2vRp8LCKrn3Ob1kYNtOo21vfDoaV5GzBfLU4MovSAB8uNRm4jgzVQZ+mBzPQ==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -2448,6 +2457,9 @@ packages:
         optional: true
       yaml:
         optional: true
+
+  web-tree-sitter@0.20.8:
+    resolution: {integrity: sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -2696,6 +2708,35 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  '@mliolios/move-playground-react@file:../move-playground-react(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(shiki@3.7.0)(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1))':
+    dependencies:
+      '@monaco-editor/react': 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mysten/prettier-plugin-move': 0.3.1
+      '@radix-ui/colors': 3.0.0
+      '@radix-ui/react-tooltip': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/themes': 3.2.1(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@shikijs/monaco': 3.7.0
+      '@tailwindcss/vite': 4.1.10(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1))
+      '@tanstack/react-query': 5.80.10(react@18.3.1)
+      ansi-to-react: 6.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      lucide-react: 0.518.0(react@18.3.1)
+      monaco-editor: 0.52.2
+      prettier: 3.5.3
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-resizable-panels: 3.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      shiki: 3.7.0
+      tailwind-merge: 3.3.1
+      tailwindcss: 4.1.10
+      vite-plugin-wasm: 3.4.1(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1))
+      web-tree-sitter: 0.20.8
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
+      - vite
+
   '@monaco-editor/loader@1.5.0':
     dependencies:
       state-local: 1.0.7
@@ -2736,30 +2777,10 @@ snapshots:
       - react-dom
       - typescript
 
-  '@mysten/move-playground-component@file:../move-playground-component(@shikijs/monaco@3.7.0)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(shiki@3.7.0)(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1))':
+  '@mysten/prettier-plugin-move@0.3.1':
     dependencies:
-      '@monaco-editor/react': 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/colors': 3.0.0
-      '@radix-ui/react-tooltip': 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/themes': 3.2.1(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@shikijs/monaco': 3.7.0
-      '@tailwindcss/vite': 4.1.10(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1))
-      '@tanstack/react-query': 5.80.10(react@18.3.1)
-      ansi-to-react: 6.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      class-variance-authority: 0.7.1
-      clsx: 2.1.1
-      lucide-react: 0.518.0(react@18.3.1)
-      monaco-editor: 0.52.2
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-resizable-panels: 3.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      shiki: 3.7.0
-      tailwind-merge: 3.3.1
-      tailwindcss: 4.1.10
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
-      - vite
+      prettier: 3.5.3
+      web-tree-sitter: 0.20.8
 
   '@mysten/sui@1.26.1(typescript@5.8.3)':
     dependencies:
@@ -4858,6 +4879,10 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
+  vite-plugin-wasm@3.4.1(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)):
+    dependencies:
+      vite: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)
+
   vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1):
     dependencies:
       esbuild: 0.25.5
@@ -4870,6 +4895,8 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.4.2
       lightningcss: 1.30.1
+
+  web-tree-sitter@0.20.8: {}
 
   which@2.0.2:
     dependencies:

@@ -9,7 +9,7 @@ import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
 // import prettier from "prettier/standalone";
 // @ts-ignore-next-line
-// import * as movePrettierPlugin from "@mysten/prettier-plugin-move";
+// import * as movePrettierPlugin from "../lib/prettier-move/src/index";
 
 import TerminalOutput from "./TerminalOutput";
 import { Loading } from "./ui/loading";
@@ -130,10 +130,11 @@ export function MoveEditor({
 
   const formatCode = useCallback(() => {
     console.log("Formatting...");
-    // prettier.format(code, {
+    // const output = prettier.format(code, {
     //   parser: "move",
     //   plugins: [movePrettierPlugin],
     // });
+    // console.log(output);
   }, [code]);
 
   const codeActions = useMemo(() => {
@@ -196,7 +197,7 @@ export function MoveEditor({
             minHeight: useVerticalVersion ? "300px" : undefined,
           }}
         >
-          <div className="absolute top-[10px] right-[20px] z-50 flex gap-5 flex-col move-editor-actions">
+          <div className="absolute top-[10px] right-[15px] z-50 flex gap-5 flex-col move-editor-actions ">
             {codeActions.map((action) => (
               <Tooltip key={action.tooltip}>
                 <TooltipTrigger

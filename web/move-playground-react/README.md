@@ -7,5 +7,5 @@ A React Component for Move Playground using `monaco` editor, `shiki`
 To install the package in your package, you should do:
 
 ```install
-pnpm add shiki @shikijs/monaco @mysten/move-playground-react
+pnpm add shiki @shikijs/monaco @mliolios/move-playground-react
 ```
