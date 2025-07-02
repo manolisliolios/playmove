@@ -7,14 +7,16 @@ use tower_http::cors::{Any, CorsLayer};
 
 use std::net::SocketAddr;
 
-use crate::helpers::{verify_prettier_move_installed, BuildRequest};
+use crate::helpers::{test_and_cache_sui_git_deps, verify_prettier_move_installed, BuildRequest};
 
 pub(crate) mod errors;
 pub(crate) mod helpers;
 
 /// POST `/build` endpoint.
-pub async fn build_source(Json(payload): Json<BuildRequest>) -> Result<Json<BuildResult>, ApiError> {
-    match payload.code.build(payload.build_type).await {
+pub async fn build_source(
+    Json(payload): Json<BuildRequest>,
+) -> Result<Json<BuildResult>, ApiError> {
+    match payload.code.build(payload.build_type, None, payload.network).await {
         Ok(response) => Ok(Json(response)),
         Err(e) => {
             eprintln!("Error: {}", e);
@@ -35,6 +37,13 @@ pub async fn run_server() -> Result<(), std::io::Error> {
     verify_sui_installed().expect("Sui CLI not installed");
     verify_git_installed().expect("Git CLI not installed");
     verify_prettier_move_installed().expect("prettier-move CLI not installed. It can be installed by running `npm i -g prettier @mysten/prettier-plugin-move`");
+    test_and_cache_sui_git_deps()
+        .await
+        .expect("Failed to test and cache sui git deps");
+
+    // Enable tracing
+    tracing_subscriber::fmt::init();
+
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -48,7 +57,7 @@ pub async fn run_server() -> Result<(), std::io::Error> {
         .layer(cors);
 
     // Specify the address to listen on
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8181));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8181));
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 

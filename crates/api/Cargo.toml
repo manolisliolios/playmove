@@ -1,5 +1,5 @@
 [package]
-name = "api"
+name = "moveplay-api"
 version = "0.1.0"
 edition = "2021"
 
@@ -14,7 +14,9 @@ serde_json = { workspace = true }
 tower-http = { workspace = true, features = ["cors"] }
 thiserror = { workspace = true }
 wait-timeout = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [[bin]]
-name = "api"
+name = "moveplay-api"
 path = "src/main.rs"
