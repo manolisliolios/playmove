@@ -10,6 +10,7 @@ use std::{
 };
 use tempfile::TempDir;
 use tokio::time::Instant;
+use tracing::debug;
 
 use crate::helpers::sandboxed::run_sandboxed;
 
@@ -25,11 +26,18 @@ pub enum BuildType {
     Test,
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
+pub enum Network {
+    Mainnet,
+    Testnet,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct BuildRequest {
     #[serde(flatten)]
     pub code: Code,
     pub build_type: BuildType,
+    pub network: Option<Network>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -39,26 +47,31 @@ pub struct Code {
     pub name: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct BuildResult {
     pub stdout: String,
     pub stderr: String,
 }
 
 impl Code {
-    pub async fn build(&self, build_type: BuildType) -> Result<BuildResult> {
+    pub async fn build(
+        &self,
+        build_type: BuildType,
+        timeout: Option<u64>,
+        network: Option<Network>,
+    ) -> Result<BuildResult> {
         if self.number_of_files() > 1 {
             bail!("Only one file is supported at the moment");
         }
 
         let start = Instant::now();
         let temp_dir = self.create_temp_project()?;
-        eprintln!("Time taken to create temp project: {:?}", start.elapsed());
+        debug!("Time taken to create temp project: {:?}", start.elapsed());
 
         let start = Instant::now();
 
         let result = run_sandboxed(
-            "sui",
+            network.unwrap_or(Network::Mainnet).binary_name(),
             &vec![
                 "move",
                 if build_type == BuildType::Test {
@@ -70,11 +83,11 @@ impl Code {
                 temp_dir.path().join("temp").to_str().unwrap(),
                 "--skip-fetch-latest-git-deps",
             ],
-            DEFAULT_TIMEOUT,
+            timeout.unwrap_or(DEFAULT_TIMEOUT),
         )
         .await;
 
-        eprintln!("Time taken to build: {:?}", start.elapsed());
+        debug!("Time taken to build: {:?}", start.elapsed());
 
         Ok(BuildResult {
             stdout: result.stdout,
@@ -180,13 +193,32 @@ impl Code {
     }
 }
 
-pub fn verify_sui_installed() -> anyhow::Result<()> {
-    let output = Command::new("sui").arg("--version").output()?;
+impl Network {
+    pub fn binary_name(&self) -> &str {
+        match self {
+            Network::Mainnet => "sui_mainnet",
+            Network::Testnet => "sui_testnet",
+        }
+    }
+}
 
-    if output.status.success() {
+pub fn verify_sui_installed() -> anyhow::Result<()> {
+    let mainnet_output = Command::new(Network::Mainnet.binary_name())
+        .arg("--version")
+        .output()?;
+
+    let testnet_output = Command::new(Network::Testnet.binary_name())
+        .arg("--version")
+        .output()?;
+
+    if mainnet_output.status.success() && testnet_output.status.success() {
         Ok(())
+    } else if mainnet_output.status.success() {
+        Err(anyhow::anyhow!("sui testnet CLI not installed"))
+    } else if testnet_output.status.success() {
+        Err(anyhow::anyhow!("sui mainnet CLI not installed"))
     } else {
-        Err(anyhow::anyhow!("sui CLI not installed"))
+        Err(anyhow::anyhow!("sui CLI not installed on any network."))
     }
 }
 
@@ -208,6 +240,22 @@ pub fn verify_prettier_move_installed() -> anyhow::Result<()> {
     } else {
         Err(anyhow::anyhow!("prettier CLI not installed"))
     }
+}
+
+pub async fn test_and_cache_sui_git_deps() -> Result<()> {
+    debug!("Running a move build when initializing the crate, in order to cache the git deps.");
+
+    let code = Code {
+        sources: HashMap::new(),
+        tests: HashMap::new(),
+        name: "test".to_string(),
+    };
+
+    // TODO: change Sui dep fetching based on the network it's running on as well!
+    let build_result = code.build(BuildType::Test, Some(120), None).await?;
+
+    debug!("Build result: {:?}", build_result);
+    Ok(())
 }
 
 fn base_toml_file(name: &str) -> String {
