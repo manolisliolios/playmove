@@ -53,6 +53,9 @@ pub struct BuildResult {
     pub stderr: String,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GistUrl(pub String);
+
 impl Code {
     pub async fn build(
         &self,
@@ -60,9 +63,7 @@ impl Code {
         timeout: Option<u64>,
         network: Option<Network>,
     ) -> Result<BuildResult> {
-        if self.number_of_files() > 1 {
-            bail!("Only one file is supported at the moment");
-        }
+        self.validate_file_names()?;
 
         let start = Instant::now();
         let temp_dir = self.create_temp_project()?;
@@ -101,9 +102,7 @@ impl Code {
 
     /// Endpoint to format the codebase.
     pub async fn format(&self) -> Result<Code> {
-        if self.number_of_files() > 1 {
-            bail!("Only one file is supported at the moment");
-        }
+        self.validate_file_names()?;
 
         let temp_dir = self.create_temp_project()?;
 
@@ -129,6 +128,11 @@ impl Code {
         .await;
 
         Ok(self.read_formatted_files(&temp_dir)?)
+    }
+
+    pub async fn share(&self) -> Result<GistUrl> {
+        self.validate_file_names()?;
+        todo!();
     }
 
     fn create_temp_project(&self) -> anyhow::Result<TempDir> {
@@ -158,6 +162,36 @@ impl Code {
         }
 
         Ok(temp_dir)
+    }
+
+    fn validate_file_names(&self) -> Result<()> {
+        // We might need to change this in the future or make this dynamic.
+        // For now, we only support one file (as the web also allows!)
+        if self.number_of_files() > 1 {
+            bail!("Only one file is supported at the moment");
+        }
+
+        for (file_name, _) in &self.sources {
+            if file_name.is_empty() {
+                bail!("File name is empty: {}", file_name);
+            }
+
+            if !sanitize_filename::is_sanitized(file_name) {
+                bail!("File name is not valid: {}", file_name);
+            }
+        }
+
+        for (file_name, _) in &self.tests {
+            if file_name.is_empty() {
+                bail!("File name is empty: {}", file_name);
+            }
+
+            if !sanitize_filename::is_sanitized(file_name) {
+                bail!("File name is not valid: {}", file_name);
+            }
+        }
+
+        Ok(())
     }
 
     fn read_formatted_files(&self, temp_dir: &TempDir) -> Result<Self> {

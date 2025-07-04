@@ -16,6 +16,7 @@ thiserror = { workspace = true }
 wait-timeout = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+sanitize-filename = { workspace = true }
 
 [[bin]]
 name = "moveplay-api"
