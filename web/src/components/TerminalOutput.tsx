@@ -9,7 +9,7 @@ const TerminalOutput = ({
 }) => {
   return (
     <pre
-      className={`whitespace-pre-wrap p-2 text-sm ${className}`}
+      className={`whitespace-pre-wrap text-sm ${className}`}
       style={{
         fontFamily: "monospace",
       }}

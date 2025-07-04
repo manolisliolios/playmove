@@ -24,11 +24,7 @@ pub async fn publish_gist(code: &Code) -> Result<GistUrl> {
     let mut formatted_sources: HashMap<String, Value> = code
         .sources
         .iter()
-        .map(|(name, source)| {
-            let corrected_name = name.to_string() + ".move";
-
-            ((corrected_name + ".move"), json!({ "content": source }))
-        })
+        .map(|(name, source)| ((name.to_string() + ".move"), json!({ "content": source })))
         .collect();
 
     // Add tests to the formatted sources
