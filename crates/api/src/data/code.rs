@@ -1,18 +1,21 @@
-mod sandboxed;
+use std::{collections::HashMap, fs::File};
+use tempfile::TempDir;
+use tokio::time::Instant;
 
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::HashMap,
-    fs::{create_dir, File},
+    fs::create_dir,
     io::{Read, Write},
-    process::Command,
 };
-use tempfile::TempDir;
-use tokio::time::Instant;
 use tracing::debug;
 
-use crate::helpers::sandboxed::run_sandboxed;
+use crate::data::{
+    base_toml_file,
+    gist::{publish_gist, GistUrl},
+    sandboxed::run_sandboxed,
+    Network, PRETTIER_DEFAULT_CONFIG,
+};
 
 /// The default timeout for the build process in seconds.
 const DEFAULT_TIMEOUT: u64 = 20;
@@ -20,16 +23,17 @@ const DEFAULT_TIMEOUT: u64 = 20;
 /// The default timeout for the format process in seconds.
 const DEFAULT_FORMAT_TIMEOUT: u64 = 2;
 
+#[derive(Serialize, Deserialize)]
+pub struct Code {
+    pub sources: HashMap<String, String>,
+    pub tests: HashMap<String, String>,
+    pub name: String,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub enum BuildType {
     Build,
     Test,
-}
-
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
-pub enum Network {
-    Mainnet,
-    Testnet,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -40,21 +44,11 @@ pub struct BuildRequest {
     pub network: Option<Network>,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct Code {
-    pub sources: HashMap<String, String>,
-    pub tests: HashMap<String, String>,
-    pub name: String,
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BuildResult {
     pub stdout: String,
     pub stderr: String,
 }
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct GistUrl(pub String);
 
 impl Code {
     pub async fn build(
@@ -72,7 +66,7 @@ impl Code {
         let start = Instant::now();
 
         let result = run_sandboxed(
-            network.unwrap_or(Network::Mainnet).binary_name(),
+            &network.unwrap_or(Network::Mainnet).binary_name(),
             &vec![
                 "move",
                 if build_type == BuildType::Test {
@@ -132,7 +126,7 @@ impl Code {
 
     pub async fn share(&self) -> Result<GistUrl> {
         self.validate_file_names()?;
-        todo!();
+        publish_gist(self).await
     }
 
     fn create_temp_project(&self) -> anyhow::Result<TempDir> {
@@ -226,91 +220,3 @@ impl Code {
         self.sources.len() + self.tests.len()
     }
 }
-
-impl Network {
-    pub fn binary_name(&self) -> &str {
-        match self {
-            Network::Mainnet => "sui_mainnet",
-            Network::Testnet => "sui_testnet",
-        }
-    }
-}
-
-pub fn verify_sui_installed() -> anyhow::Result<()> {
-    let mainnet_output = Command::new(Network::Mainnet.binary_name())
-        .arg("--version")
-        .output()?;
-
-    let testnet_output = Command::new(Network::Testnet.binary_name())
-        .arg("--version")
-        .output()?;
-
-    if mainnet_output.status.success() && testnet_output.status.success() {
-        Ok(())
-    } else if mainnet_output.status.success() {
-        Err(anyhow::anyhow!("sui testnet CLI not installed"))
-    } else if testnet_output.status.success() {
-        Err(anyhow::anyhow!("sui mainnet CLI not installed"))
-    } else {
-        Err(anyhow::anyhow!("sui CLI not installed on any network."))
-    }
-}
-
-pub fn verify_git_installed() -> anyhow::Result<()> {
-    let output = Command::new("git").arg("--version").output()?;
-
-    if output.status.success() {
-        Ok(())
-    } else {
-        Err(anyhow::anyhow!("git CLI not installed"))
-    }
-}
-
-pub fn verify_prettier_move_installed() -> anyhow::Result<()> {
-    let output = Command::new("prettier-move").arg("--version").output()?;
-
-    if output.status.success() {
-        Ok(())
-    } else {
-        Err(anyhow::anyhow!("prettier CLI not installed"))
-    }
-}
-
-pub async fn test_and_cache_sui_git_deps() -> Result<()> {
-    debug!("Running a move build when initializing the crate, in order to cache the git deps.");
-
-    let code = Code {
-        sources: HashMap::new(),
-        tests: HashMap::new(),
-        name: "test".to_string(),
-    };
-
-    // TODO: change Sui dep fetching based on the network it's running on as well!
-    let build_result = code.build(BuildType::Test, Some(120), None).await?;
-
-    debug!("Build result: {:?}", build_result);
-    Ok(())
-}
-
-fn base_toml_file(name: &str) -> String {
-    format!(
-        r#"[package]
-name = "{name}"
-edition = "2024.beta"
-
-[dependencies]
-
-[addresses]
-{name} = "0x0"
-        "#
-    )
-}
-
-const PRETTIER_DEFAULT_CONFIG: &str = r#"
-{
-	"printWidth": 100,
-	"tabWidth": 4,
-	"useModuleLabel": true,
-	"autoGroupImports": "module",
-}
-"#;
