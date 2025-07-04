@@ -7,7 +7,9 @@ use tower_http::cors::{Any, CorsLayer};
 
 use std::net::SocketAddr;
 
-use crate::helpers::{test_and_cache_sui_git_deps, verify_prettier_move_installed, BuildRequest};
+use crate::helpers::{
+    test_and_cache_sui_git_deps, verify_prettier_move_installed, BuildRequest, GistUrl,
+};
 
 pub(crate) mod errors;
 pub(crate) mod helpers;
@@ -16,7 +18,11 @@ pub(crate) mod helpers;
 pub async fn build_source(
     Json(payload): Json<BuildRequest>,
 ) -> Result<Json<BuildResult>, ApiError> {
-    match payload.code.build(payload.build_type, None, payload.network).await {
+    match payload
+        .code
+        .build(payload.build_type, None, payload.network)
+        .await
+    {
         Ok(response) => Ok(Json(response)),
         Err(e) => {
             eprintln!("Error: {}", e);
@@ -40,10 +46,6 @@ pub async fn run_server() -> Result<(), std::io::Error> {
     test_and_cache_sui_git_deps()
         .await
         .expect("Failed to test and cache sui git deps");
-
-    // Enable tracing
-    tracing_subscriber::fmt::init();
-
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
