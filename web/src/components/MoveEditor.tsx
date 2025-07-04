@@ -21,7 +21,9 @@ import { LightMode } from "@/icons/LightMode";
 import { CloseIcon } from "@/icons/CloseIcon";
 import { TerminalIcon } from "@/icons/TerminalIcon";
 import { CopyIcon } from "@/icons/CopyIcon";
-import { CheckIcon } from "@/icons/CheckIcon";
+import { CopySidebar } from "./CopySidebar";
+import { useGist } from "@/hooks/useGist";
+import { useBuildCode, useFormatCode } from "@/hooks/usePlaymoveApi";
 
 const MODULE_NAME_REGEX = /\bmodule\s+([a-zA-Z_][\w]*)::([a-zA-Z_][\w]*)/;
 
@@ -31,12 +33,6 @@ const getModuleName = (code: string) => {
     return match[1];
   }
   return "temp";
-};
-
-const shareToClipboard = (text: string) => {
-  // clean up text to be a valid uri param
-  const uriParam = encodeURIComponent(text);
-  navigator.clipboard.writeText(window.location.origin + "#" + uriParam);
 };
 
 const importFromUri = () => {
@@ -74,11 +70,39 @@ export function MoveEditor({
   localStorageKey = "moveground.code",
 }: MoveEditorProps) {
   const containerRef = useRef(null);
-  const [loading, setLoading] = useState<boolean>(false);
   const [useVerticalVersion, setUseVerticalVersion] = useState(false);
-  const [copied, setCopied] = useState(false);
 
+  const [tab, setTab] = useState<"code" | "copy">("code");
   const [showOutput, setShowOutput] = useState(false);
+
+  const codeRequest = useMemo(() => {
+    const name = getModuleName(code || "");
+    return {
+      name,
+      sources: { [name]: code?.trim() || "" },
+      tests: {},
+      build_type: "Test" as const,
+    };
+  }, [code]);
+
+  const { query, hasShareParam } = useGist();
+
+  const { mutateAsync: executeBuild, isPending: isBuilding } = useBuildCode();
+
+  const { mutateAsync: executeFormat, isPending: isFormatting } =
+    useFormatCode();
+
+  const loading = useMemo(
+    () => isBuilding || isFormatting,
+    [isBuilding, isFormatting]
+  );
+
+  useEffect(() => {
+    if (!hasShareParam) return;
+    if (query.isLoading) return;
+
+    setCode?.(query.data);
+  }, [query.isLoading, hasShareParam, query.data]);
 
   useEffect(() => {
     const code = importFromUri();
@@ -126,63 +150,42 @@ export function MoveEditor({
 
   const showOutputPanel = useMemo(() => {
     return (output || loading) && showOutput;
-  }, [output, loading]);
+  }, [output, loading, showOutput]);
 
   const build = useCallback(
     async (test: boolean = false) => {
-      setLoading(true);
       setOutput("");
       setShowOutput(true);
-      const name = getModuleName(code || "");
+      setTab("code");
+
       try {
-        const res = await fetch(`${apiUrl}/build`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            sources: { [name]: code?.trim() || "" },
-            tests: {},
-            build_type: test ? "Test" : "Build",
-          }),
+        const result = await executeBuild({
+          ...codeRequest,
+          build_type: test ? "Test" : "Build",
         });
-        const result = await res.json();
+
         setOutput(result.stdout + "\n" + result.stderr);
       } catch (e) {
         console.error(e);
       }
-
-      setLoading(false);
     },
-    [code]
+    [codeRequest]
   );
 
   const formatCode = useCallback(async () => {
-    setLoading(true);
     setShowOutput(true);
-    const name = getModuleName(code || "");
+    setTab("code");
 
     try {
-      const res = await fetch(`${apiUrl}/format`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          sources: { [name]: code?.trim() || "" },
-          tests: {},
-        }),
-      });
+      const result = await executeFormat(codeRequest);
 
-      const result = await res.json();
-
-      handleEditorChange(result.sources[name] || "");
+      handleEditorChange(result);
       setOutput("Code formatted successfully.");
     } catch (e) {
       console.error(e);
       setOutput("Error formatting code.");
     }
-
-    setLoading(false);
-  }, [code]);
+  }, [codeRequest]);
 
   const codeActions = useMemo(() => {
     return [
@@ -198,35 +201,44 @@ export function MoveEditor({
       },
       {
         icon: darkMode ? <LightMode /> : <DarkMode />,
-        tooltip: "Switch to Light Mode",
+        tooltip: darkMode ? "Switch to Light Mode" : "Switch to Dark Mode",
         onClick: () => setDarkMode?.(!darkMode),
       },
 
       {
         icon: <TerminalIcon />,
-        tooltip: showOutput ? "Hide Terminal" : "Show Terminal",
-        onClick: () => setShowOutput(!showOutput),
+        tooltip: "Show Terminal",
+        onClick: () => {
+          if (showOutput && tab === "code") {
+            setShowOutput(false);
+            return;
+          }
+
+          setTab("code");
+          setShowOutput(true);
+        },
       },
       {
-        icon: copied ? <CheckIcon /> : <CopyIcon />,
-        tooltip: copied ? "Copied!" : "Copy Share Link",
+        icon: <CopyIcon />,
+        tooltip: "Share Code",
         onClick: () => {
-          setCopied(true);
-          shareToClipboard(code || "");
+          if (showOutput && tab === "copy") {
+            setShowOutput(false);
+            return;
+          }
 
-          setTimeout(() => {
-            setCopied(false);
-          }, 2000);
+          setTab("copy");
+          setShowOutput(true);
         },
       },
     ];
-  }, [darkMode, formatCode, build, showOutput, copied]);
+  }, [darkMode, formatCode, build, showOutput, tab]);
 
   const outputActions = useMemo(() => {
     return [
       {
         icon: <CloseIcon />,
-        tooltip: "Hide Terminal",
+        tooltip: "Hide Sidebar",
       },
     ];
   }, []);
@@ -305,7 +317,7 @@ export function MoveEditor({
         {showOutput && (
           <ResizablePanel
             defaultSize={useVerticalVersion ? 100 : 35}
-            className="!overflow-y-auto relative"
+            className={cn("!overflow-y-auto relative")}
             style={{
               height,
               minHeight: useVerticalVersion ? "250px" : undefined,
@@ -331,9 +343,17 @@ export function MoveEditor({
               ))}
             </div>
             {loading && <Loading />}
-            <TerminalOutput
-              output={output || "Run output will be visible here."}
-            />
+
+            <div className="py-12 px-4">
+              {tab === "code" && (
+                <TerminalOutput
+                  output={output || "Run output will be visible here."}
+                />
+              )}
+              {tab === "copy" && (
+                <CopySidebar codeRequest={codeRequest} apiUrl={apiUrl} />
+              )}
+            </div>
           </ResizablePanel>
         )}
       </ResizablePanelGroup>
