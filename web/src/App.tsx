@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { MoveEditor } from "./components/MoveEditor";
+import { Toaster } from "sonner";
 
 function App() {
+
   const [code, setCode] = useState<string | undefined>(
     localStorage.getItem("playmove-code") ||
       `module temp::temp;
@@ -30,6 +32,8 @@ fun test() {
         enableLocalStorageSaving={true}
         localStorageKey="playmove-code"
       />
+
+      <Toaster />
     </div>
   );
 }

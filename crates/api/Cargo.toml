@@ -1,5 +1,5 @@
 [package]
-name = "moveplay-api"
+name = "playmove-api"
 version = "0.1.0"
 edition = "2021"
 
@@ -16,7 +16,9 @@ thiserror = { workspace = true }
 wait-timeout = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+sanitize-filename = { workspace = true }
+reqwest = { workspace = true, features = ["json"] }
 
 [[bin]]
-name = "moveplay-api"
+name = "playmove-api"
 path = "src/main.rs"
