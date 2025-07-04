@@ -1,18 +1,21 @@
 use anyhow::Result;
 use axum::Json;
 use axum::{routing::post, Router};
+use data::{verify_git_installed, verify_sui_installed};
 use errors::ApiError;
-use helpers::{verify_git_installed, verify_sui_installed, BuildResult, Code};
 use tower_http::cors::{Any, CorsLayer};
+use tracing::warn;
 
 use std::net::SocketAddr;
 
-use crate::helpers::{
-    test_and_cache_sui_git_deps, verify_prettier_move_installed, BuildRequest, GistUrl,
+use crate::data::code::{BuildRequest, BuildResult, Code};
+use crate::data::gist::GistUrl;
+use crate::data::{
+    test_and_cache_sui_git_deps, verify_github_token_set, verify_prettier_move_installed,
 };
 
+pub(crate) mod data;
 pub(crate) mod errors;
-pub(crate) mod helpers;
 
 /// POST `/build` endpoint.
 pub async fn build_source(
@@ -38,11 +41,22 @@ pub async fn format_source(Json(payload): Json<Code>) -> Result<Json<Code>, ApiE
     }
 }
 
+pub async fn share_source(Json(payload): Json<Code>) -> Result<Json<GistUrl>, ApiError> {
+    match payload.share().await {
+        Ok(response) => Ok(Json(response)),
+        Err(e) => Err(ApiError::InternalServerError(e.to_string())),
+    }
+}
+
 /// Entrypoint to construct & run the API axum instance.
 pub async fn run_server() -> Result<(), std::io::Error> {
     verify_sui_installed().expect("Sui CLI not installed");
     verify_git_installed().expect("Git CLI not installed");
     verify_prettier_move_installed().expect("prettier-move CLI not installed. It can be installed by running `npm i -g prettier @mysten/prettier-plugin-move`");
+    if verify_github_token_set().is_err() {
+        warn!("GITHUB_TOKEN environment variable not set. Sharing code will not be functional.");
+    }
+
     test_and_cache_sui_git_deps()
         .await
         .expect("Failed to test and cache sui git deps");
@@ -56,6 +70,7 @@ pub async fn run_server() -> Result<(), std::io::Error> {
     let app = Router::new()
         .route("/build", post(build_source))
         .route("/format", post(format_source))
+        .route("/share", post(share_source))
         .layer(cors);
 
     // Specify the address to listen on
